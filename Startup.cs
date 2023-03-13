@@ -1,3 +1,4 @@
+using InterviewTest.Stores;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
@@ -28,6 +29,9 @@ namespace InterviewTest
             {
                 configuration.RootPath = "ClientApp/build";
             });
+
+            // Inject employee store
+            services.AddScoped<IEmployeeStore, EmployeeStore>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -73,14 +77,14 @@ namespace InterviewTest
                 delTableCmd.ExecuteNonQuery();
 
                 var createTableCmd = connection.CreateCommand();
-                createTableCmd.CommandText = "CREATE TABLE Employees(Name VARCHAR(50), Value INT)";
+                createTableCmd.CommandText = "CREATE TABLE Employees(Id INTEGER PRIMARY KEY AUTOINCREMENT, Name VARCHAR(50), Value INT)";
                 createTableCmd.ExecuteNonQuery();
 
                 //Fill with data
                 using (var transaction = connection.BeginTransaction())
                 {
                     var insertCmd = connection.CreateCommand();
-                    insertCmd.CommandText = @"INSERT INTO Employees VALUES
+                    insertCmd.CommandText = @"INSERT INTO Employees(Name, Value) VALUES
                         ('Abul', 1357),
                         ('Adolfo', 1224),
                         ('Alexander', 2296),
