@@ -23,7 +23,7 @@ namespace InterviewTest.Stores
                 connection.Open();
 
                 var queryCmd = connection.CreateCommand();
-                queryCmd.CommandText = @"SELECT Id, Name, Value FROM Employees";
+                queryCmd.CommandText = @"SELECT Id, Name, Lastname, Value, Address, Phone FROM Employees";
                 using (var reader = queryCmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -32,7 +32,10 @@ namespace InterviewTest.Stores
                         {
                             Id = reader.GetInt32(0),
                             Name = reader.GetString(1),
-                            Value = reader.GetInt32(2)
+                            Lastname = reader.GetString(2),
+                            Value = reader.GetInt32(3),
+                            Address = reader.GetString(4),
+                            Phone = reader.GetString(5)
                         });
                     }
                 }
@@ -48,9 +51,12 @@ namespace InterviewTest.Stores
                 connection.Open();
 
                 var queryCmd = connection.CreateCommand();
-                queryCmd.CommandText = @"INSERT INTO Employees(Name, Value) VALUES(@n, @v)";
+                queryCmd.CommandText = @"INSERT INTO Employees(Name, Lastname, Value, Address, Phone) VALUES(@n, @l, @v, @a, @p)";
                 queryCmd.Parameters.AddWithValue("@n", employee.Name);
+                queryCmd.Parameters.AddWithValue("@l", employee.Lastname);
                 queryCmd.Parameters.AddWithValue("@v", employee.Value);
+                queryCmd.Parameters.AddWithValue("@a", employee.Address);
+                queryCmd.Parameters.AddWithValue("@p", employee.Phone);
                 queryCmd.ExecuteNonQuery();
             }
         }
@@ -75,10 +81,13 @@ namespace InterviewTest.Stores
                 connection.Open();
 
                 var queryCmd = connection.CreateCommand();
-                queryCmd.CommandText = @"UPDATE Employees SET Value=@v, Name=@n WHERE Id=@i";
+                queryCmd.CommandText = @"UPDATE Employees SET Value=@v, Name=@n , Lastname=@l, Address=@a, Phone=@p WHERE Id=@i";
                 queryCmd.Parameters.AddWithValue("@i", employee.Id);
                 queryCmd.Parameters.AddWithValue("@n", employee.Name);
+                queryCmd.Parameters.AddWithValue("@l", employee.Lastname);
                 queryCmd.Parameters.AddWithValue("@v", employee.Value);
+                queryCmd.Parameters.AddWithValue("@a", employee.Address);
+                queryCmd.Parameters.AddWithValue("@p", employee.Phone);
                 queryCmd.ExecuteNonQuery();
             }
         }
