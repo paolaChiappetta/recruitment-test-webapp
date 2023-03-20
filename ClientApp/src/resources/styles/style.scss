@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Farsan&family=Signika+Negative&display=swap');
+
+:root {
+    --primary-color: #0059b6;
+}
+
+body{
+    font-family: 'Farsan';
+}
+
+
+.employeeListTableContainer {
+    height: 380px;
+    overflow-y: auto;
+    margin: auto 15px;
+    border: 8px solid var(--primary-color);
+    border-radius: 10px;
+
+    .employeeListTable {
+        margin: 0 auto;
+        font-size: 20px;
+        width: 100%;
+
+
+        thead {
+            position: sticky;
+            top: 0;
+            background: white;
+        }
+
+        .employeeListGridContainer {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr 0.5fr 0.5fr;
+
+            th, td {
+                display: flex;
+                flex-direction: column;
+                align-content: center;
+                align-items: center;
+                padding: 15px;
+            }
+
+            p {
+                margin: 0;
+                width: 100%;
+                text-align: center;
+            }
+
+            .employeeListTableBottomBorder {
+                border-bottom: 1px solid grey;
+            }
+
+            .textOverflow {
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+        }
+
+        .iconButton {
+            border: transparent;
+            background-color: transparent;
+            cursor: pointer;
+
+            .icon {
+                width: 15px;
+                height: 15px;
+            }
+        }
+    }
+}
+
+.employeeListTableContainer::-webkit-scrollbar {
+    width: 11px; /* width of the entire scrollbar */
+}
+
+.employeeListTableContainer::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 20px; 
+    border: 3px solid white; 
+}
+
+.searchAndAddContainer {
+    padding-bottom: 15px;
+    margin: 0 70px;
+
+    .employeeListFilterGrid {
+        display: grid;
+        grid-template-columns: 2fr 2fr;
+    }
+
+    .employeeListFilterDiv {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .employeeListfilterInput {
+        width: 100%;
+        margin: 0 20px;
+    }
+
+    .employeeListNewEmployeeButton {
+        border-radius: 20px;
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: bold;
+        margin-top: 10px;
+        width: 100%;
+        padding: 5px;
+        cursor: pointer;
+        border: none;
+        margin: 5px auto;
+    }
+
+    .iconButton {
+        border: transparent;
+        background-color: transparent;
+        cursor: pointer;
+
+        .icon {
+            width: 35px;
+            height: 35px;
+            margin-top: 20px;
+        }
+    }
+}
+
+
+.headerContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    .headerLogo {
+        width: 200px;
+        height: 200px;
+        margin-left: 50px;
+    }
+
+    h1 {
+        color: var(--primary-color);
+        font-family: 'Farsan', cursive;
+        font-size: 45px;
+        margin-left: 50px;
+    }
+}
+
+.line {
+    border-color: rgb(192, 190, 190);
+    border-width: 0.5px;
+    border-style: solid;
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+
+
