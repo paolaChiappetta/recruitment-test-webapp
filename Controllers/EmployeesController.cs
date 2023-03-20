@@ -17,17 +17,31 @@ namespace InterviewTest.Controllers
         }
 
         [HttpGet]
+        [Route("get")]
         public List<Employee> Get()
         {
             return store.GetAllEmployees();
         }
 
         [HttpDelete]
+        [Route("delete")]
         public void Delete([FromBody] int id)
         {
             store.DeleteEmployee(id);
         }
 
-        // TODO: Update & Add
+        [HttpPut]
+        [Route("update")]
+        public void Update([FromBody] Employee employee)
+        {
+            store.UpdateEmployee(employee);
+        }
+
+        [HttpPost]
+        [Route("add")]
+        public void Add([FromBody] Employee employee)
+        {
+            store.AddEmployee(employee);
+        }
     }
 }
