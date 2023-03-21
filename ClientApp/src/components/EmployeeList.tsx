@@ -1,16 +1,21 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import EmployeeForm from './EmployeeForm.tsx';
+import Spinner from './Spinner.tsx';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Swal from 'sweetalert2';
+import { ExportToCsv } from 'export-to-csv';
+
 
 export default function EmployeeList() {
     const [employees, setEmployees] = useState([]);
+    const [filteredEmployees, setFilteredEmployees] = useState([]);
     const [dialogVisibility, setDialogVisibility] = useState(false);
     const [isEdition, setIsEdition] = useState(false);
     const [editingEmployee, setEditingEmployee] = useState(null);
     const [filter, setFilter] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
 
     const getEmployees = async () => {
         const response = await fetch("Employees/get");
@@ -18,6 +23,7 @@ export default function EmployeeList() {
         if (response.ok) {
             const data = response.json();
             setEmployees(await data);
+            setFilteredEmployees(await data);
         }
     }
 
@@ -95,16 +101,15 @@ export default function EmployeeList() {
                 width: '320px'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    getEmployees();
+                      getEmployees();
                 }
             })            
         }
     }
 
     const handleChangeFilter = (e) => {
-        console.log(e.target.value);
         if (e.target.value === "") {
-            getEmployees();
+            setFilteredEmployees(employees);
         } else {
             setFilter(e.target.value);
         }
@@ -112,94 +117,120 @@ export default function EmployeeList() {
 
     const onClickSearchButton = (search: string) => {
         if (search !== "") {
-            getEmployees().then(() => {
-                let filterEmployeeList: Employee[] = [];
-                if (employees.length > 0) {
-                    employees.map((employee: Employee) => {
-                        if (employee.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ||
-                            employee.lastname.toLocaleLowerCase().includes(search.toLocaleLowerCase())) {
-                            filterEmployeeList.push(employee);
-                        }
-                    })
-                }
-                setEmployees(filterEmployeeList);
-            })
+            let filterEmployeeList: Employee[] = [];
+            if (employees.length > 0) {
+                employees.map((employee: Employee) => {
+                    if (employee.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ||
+                        employee.lastname.toLocaleLowerCase().includes(search.toLocaleLowerCase())) {
+                        filterEmployeeList.push(employee);
+                    }
+                })
+            }
+            setFilteredEmployees(filterEmployeeList);
         }
     }
 
+    const onClickDownloadCSV = async () => {
+        const config = {
+            fieldSeparator: ';',
+            quoteStrings: '"',
+            decimalSeparator: '.',
+            showLabels: true,
+            showTitle: true,
+            title: 'Employees CSV',
+            filename: 'Employees CSV',
+            useTextFile: false,
+            useBom: true,
+            useKeysAsHeaders: false,
+            headers: ['Id', 'Name', 'Lasname', 'Value', 'Address', 'Phone']
+        };
+
+        const csvExporter = new ExportToCsv(config);
+
+        csvExporter.generateCsv(employees);
+    }
+
     useEffect(() => {
-        getEmployees();
+        getEmployees().then(() => {
+            setIsLoading(false);
+        });
     }, [])
 
     return (
         <>
-            <section className="searchAndAddContainer">
-                <div className="employeeListFilterGrid">
-                    <div className="employeeListFilterDiv">
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="name"
-                            name="name"
-                            label="Search by name or lastname"
-                            //value={filter}
-                            type="text"
-                            variant="standard"
-                            onChange={handleChangeFilter}
-                            className="employeeListfilterInput"
-                        />
-                        <button className="iconButton" onClick={() => onClickSearchButton(filter)}><img className='icon' alt='' src={require('../resources/images/magnifying.png')} /></button>
-                    </div>
-                    <button className="employeeListNewEmployeeButton" onClick={onClickNewEmployeeButton}>Add New Employee</button>
+            {!isLoading ?
+                <div>
+                    <section className="searchAndAddContainer">
+                        <div className="employeeListFilterGrid">
+                            <div className="employeeListFilterDiv">
+                                <TextField
+                                    autoFocus
+                                    margin="dense"
+                                    id="name"
+                                    name="name"
+                                    label="Search by name or lastname"
+                                    type="text"
+                                    variant="standard"
+                                    onChange={handleChangeFilter}
+                                    className="employeeListfilterInput"
+                                />
+                                <button className="iconButton" onClick={() => onClickSearchButton(filter)}><img className='icon' alt='' src={require('../resources/images/magnifying.png')} /></button>
+                            </div>
+                            <button className="employeeListNewEmployeeButton" onClick={onClickNewEmployeeButton}>Add New Employee</button>
+                            <button className="employeeListDownloadButton" onClick={onClickDownloadCSV}>Download CSV</button>
+                        </div>
+                    </section>
+                    <section className="employeeListTableContainer">
+                        <table className="employeeListTable">
+                            <thead>
+                                <tr className="employeeListGridContainer">
+                                    <th className="employeeListTableBottomBorder">Name</th>
+                                    <th className="employeeListTableBottomBorder">Lastname</th>
+                                    <th className="employeeListTableBottomBorder">Value</th>
+                                    <th className="employeeListTableBottomBorder">Address</th>
+                                    <th className="employeeListTableBottomBorder">Phone</th>
+                                    <th className="employeeListTableBottomBorder">Edit</th>
+                                    <th className="employeeListTableBottomBorder">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredEmployees.length > 0 ?
+                                    filteredEmployees.map((employee: Employee) => {
+                                        return (
+                                            <tr className="employeeListGridContainer" key={employee.id}>
+                                                <td className="textOverflow employeeListTableBottomBorder"><Tooltip title={employee.name}><p className="textOverflow">{employee.name}</p></Tooltip></td>
+                                                <td className="textOverflow employeeListTableBottomBorder"><Tooltip title={employee.lastname}><p className="textOverflow">{employee.lastname}</p></Tooltip></td>
+                                                <td className="textOverflow employeeListTableBottomBorder"><Tooltip title={employee.value}><p className="textOverflow">{employee.value}</p></Tooltip></td>
+                                                <td className="textOverflow employeeListTableBottomBorder"><Tooltip title={employee.address}><p className="textOverflow">{employee.address}</p></Tooltip></td>
+                                                <td className="textOverflow employeeListTableBottomBorder"><Tooltip title={employee.phone}><p className="textOverflow">{employee.phone}</p></Tooltip></td>
+                                                <td className="textOverflow employeeListTableBottomBorder">
+                                                    <button className="iconButton" onClick={() => onClickEditButton(employee)}><img className='icon' alt='' src={require('../resources/images/edit.png')} /></button>
+                                                </td>
+                                                <td className="employeeListTableBottomBorder">
+                                                    <button className="iconButton" onClick={() => onClickDeleteButton(employee)}><img className='icon' alt='' src={require('../resources/images/delete.png')} /></button>
+                                                </td>
+                                            </tr>
+                                        )
+                                    })
+                                    :
+                                    <tr><td><h3>No information available</h3></td></tr>
+                                }
+
+
+                            </tbody>
+                        </table>
+                    </section>
+                    <EmployeeForm
+                        dialogVisibility={dialogVisibility}
+                        isEdition={isEdition}
+                        setDialogVisibility={setDialogVisibility}
+                        editingEmployee={editingEmployee}
+                        saveEmployee={saveEmployee}
+                    />
                 </div>
-            </section>
-            <section className="employeeListTableContainer">
-                <table className="employeeListTable">
-                    <thead>
-                        <tr className="employeeListGridContainer">
-                            <th className="employeeListTableBottomBorder">Name</th>
-                            <th className="employeeListTableBottomBorder">Lastname</th>
-                            <th className="employeeListTableBottomBorder">Value</th>
-                            <th className="employeeListTableBottomBorder">Address</th>
-                            <th className="employeeListTableBottomBorder">Phone</th>
-                            <th className="employeeListTableBottomBorder">Edit</th>
-                            <th className="employeeListTableBottomBorder">Delete</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {employees.length > 0 ?
-                            employees.map((employee: Employee) => {
-                                return (
-                                    <tr className="employeeListGridContainer" key={employee.id}>
-                                        <td className="textOverflow employeeListTableBottomBorder"><Tooltip title={employee.name}><p className="textOverflow">{employee.name}</p></Tooltip></td>
-                                        <td className="textOverflow employeeListTableBottomBorder"><Tooltip title={employee.lastname}><p className="textOverflow">{employee.lastname}</p></Tooltip></td>
-                                        <td className="textOverflow employeeListTableBottomBorder"><Tooltip title={employee.value}><p className="textOverflow">{employee.value}</p></Tooltip></td>
-                                        <td className="textOverflow employeeListTableBottomBorder"><Tooltip title={employee.address}><p className="textOverflow">{employee.address}</p></Tooltip></td>
-                                        <td className="textOverflow employeeListTableBottomBorder"><Tooltip title={employee.phone}><p className="textOverflow">{employee.phone}</p></Tooltip></td>
-                                        <td className="textOverflow employeeListTableBottomBorder">
-                                            <button className="iconButton" onClick={() => onClickEditButton(employee)}><img className='icon' alt='' src={require('../resources/images/edit.png')} /></button>
-                                        </td>
-                                        <td className="employeeListTableBottomBorder">
-                                            <button className="iconButton" onClick={() => onClickDeleteButton(employee)}><img className='icon' alt='' src={require('../resources/images/delete.png')} /></button>
-                                        </td>
-                                    </tr>
-                                )
-                            })
-                        :
-                        <tr><h3>No information available</h3></tr>
-                        }
-
-
-                    </tbody>
-                </table>
-            </section>
-            <EmployeeForm
-                dialogVisibility={dialogVisibility}
-                isEdition={isEdition}
-                setDialogVisibility={setDialogVisibility}
-                editingEmployee={editingEmployee}
-                saveEmployee={saveEmployee}
-            />
+                :
+                <Spinner />
+            }
         </>
     )
 }

@@ -6,14 +6,10 @@ import './resources/styles/style.scss';
 
 
 export default function App() {
-    
-
     return (
         <>
-        <Header/>
-        <EmployeeList/>
-
-
+            <Header/>
+            <EmployeeList/>
         </>
     );
 }
