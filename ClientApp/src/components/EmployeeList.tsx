@@ -27,6 +27,22 @@ export default function EmployeeList() {
         }
     }
 
+    const sortByNameAndLastname = (a: any, b: any) => {
+        if (a.name.toLowerCase() < b.name.toLowerCase()) {
+            return -1;
+        } else if (a.name.toLowerCase() > b.name.toLowerCase()) {
+            return 1;
+        } else {
+            if (a.lastname.toLowerCase() < b.lastname.toLowerCase()) {
+                return -1;
+            } else if (a.lastname.toLowerCase() > b.lastname.toLowerCase()) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    }
+
     const onClickDeleteButton = async (employee: Employee) => {
         const text = "Employee: " + employee.name + " " + employee.lastname;
 
@@ -195,7 +211,7 @@ export default function EmployeeList() {
                             </thead>
                             <tbody>
                                 {filteredEmployees.length > 0 ?
-                                    filteredEmployees.map((employee: Employee) => {
+                                    filteredEmployees.sort(sortByNameAndLastname).map((employee: Employee) => {
                                         return (
                                             <tr className="employeeListGridContainer" key={employee.id}>
                                                 <td className="textOverflow employeeListTableBottomBorder"><Tooltip title={employee.name}><p className="textOverflow">{employee.name}</p></Tooltip></td>
